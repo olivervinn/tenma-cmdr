@@ -1,16 +1,24 @@
 <template>
   <div>
-    <el-select :placeholder="$t('Select')" @change="$emit('change', $event)">
-      <el-option
-        v-for="item in portlist"
-        :key="item.name"
-        :label="`${item.name}  (${item.description} - ${item.id})`"
-        :value="item.name"
-      />
-    </el-select>
-    <el-tag :type="isconnected ? 'success' : 'info'" class="item"
-      >{{ isconnected ? $t('online') : $t('offline') }} {{ value }}</el-tag
+    <el-dropdown
+      split-button
+      :type="isconnected ? 'success' : 'info'"
+      @click="$emit('click', activeport)"
+      @command="
+        activeport = $event
+        $emit('change', $event)
+      "
     >
+      <div>
+        {{ activeport ? activeport : $t('Select') }} |
+        {{ isconnected ? $t('online') : $t('offline') }}
+      </div>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item v-for="item in portlist" :key="item.name" :command="item.name">
+          {{ `${item.name} (${item.description} - ${item.id})` }}
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
   </div>
 </template>
 
@@ -20,13 +28,16 @@ export default {
   props: {
     portlist: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: null
     },
     isconnected: {
       type: Boolean,
       default: false
+    }
+  },
+  data() {
+    return {
+      activeport: null
     }
   }
 }

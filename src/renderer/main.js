@@ -7,8 +7,9 @@ import Vue from 'vue'
 import VueElectron from 'vue-electron'
 import VueI18n from 'vue-i18n'
 import ElementUI from 'element-ui'
-import enLocale from 'element-ui/lib/locale/lang/en'
 import enApp from './i18n/en'
+import deApp from './i18n/de'
+import esApp from './i18n/es'
 
 import App from './App'
 import router from './router'
@@ -22,8 +23,13 @@ Vue.use(VueElectron)
 
 const messages = {
   en: {
-    ...enLocale,
     ...enApp
+  },
+  es: {
+    ...esApp
+  },
+  de: {
+    ...deApp
   }
 }
 

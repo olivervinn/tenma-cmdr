@@ -30,7 +30,7 @@ async function installDevTools() {
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 465,
-    height: 720,
+    height: 600,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,

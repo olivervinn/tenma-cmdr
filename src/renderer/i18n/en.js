@@ -1,11 +1,12 @@
 exports.__esModule = true
 exports.default = {
+  'el.select.noData': 'No Data',
   'Actual Voltage': 'Actual Voltage (V)',
   'Target Voltage': 'Target Voltage (V)',
-  'Actual Current': 'Actual Current (A)',
+  'Actual Current': 'Actual Current (A) {peak}',
   'Target Current': 'Target Current (A)',
-  Voltage: 'Voltage V',
-  Current: 'Current A',
+  Voltage: 'Voltage',
+  Current: 'Current',
   POWER: 'POWER',
   OVP: 'OVP',
   OCP: 'OCP',

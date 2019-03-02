@@ -5,24 +5,21 @@ export default class Instrument {
    * retrieve a list of serial ports that could be
    * used for communicating with the instrument
    */
-  static async getPortNames() {
-    const portnames = []
+  static async getAvailablePorts() {
+    const portDescriptors = []
     try {
-      await SerialPort.list((_, ports) => {
-        ports.forEach(port => {
-          // eslint-disable-next-line no-console
-          console.log(`${port.comName} - ${port.manufacturer}`)
-          portnames.push({
-            name: port.comName.toString(),
-            description: port.manufacturer,
-            id: port.productId
-          })
+      let ports = await SerialPort.list()
+      ports.forEach(port => {
+        portDescriptors.push({
+          name: port.comName.toString(),
+          description: port.manufacturer,
+          id: port.productId
         })
       })
     } catch (e) {
       throw e
     }
-    return portnames
+    return portDescriptors
   }
 
   /**
@@ -55,24 +52,27 @@ export default class Instrument {
    * @param {string} oldValue previous value
    */
   static decodeStatus(rawData, oldValue) {
-    const mask = rawData.charCodeAt(0)
-    const bmask = mask.toString(2).padStart(8, '0')
-    if (bmask.indexOf('NaN') > 0) {
+    const bitFieldStatus = rawData.charCodeAt(0)
+    const normalizedStatus = bitFieldStatus.toString(2).padStart(8, '0')
+    if (normalizedStatus.indexOf('NaN') > 0) {
       return oldValue
     }
     return {
-      cc: Number(bmask[0]),
-      output: Number(bmask[1]),
-      cv: Number(bmask[2]),
-      beep: Number(bmask[4]),
-      lock: Number(bmask[5])
+      cc: Number(normalizedStatus[0]),
+      output: Number(normalizedStatus[1]),
+      cv: Number(normalizedStatus[2]),
+      beep: Number(normalizedStatus[4]),
+      lock: Number(normalizedStatus[5])
     }
   }
 
   constructor() {
+    let self = this
+    this.pollInterval = 200
+    this._autoUpdate = false
+    this._busy = false
     this._port = null
-    this.busy = false
-    this.data = {
+    this._state = {
       id: { value: '------', get: '*IDN?', delay: 100 },
       set_voltage: { value: 0.0, set: 'VSET1:+', get: 'VSET1?', delay: 60 },
       set_current: { value: 0.0, set: 'ISET1:+', get: 'ISET1?', delay: 60 },
@@ -94,6 +94,60 @@ export default class Instrument {
         delay: 100
       }
     }
+    // proxy to publicly expose only the value property
+    let validator = {
+      get: function(obj, prop) {
+        if (prop !== '__ob__' && typeof obj[prop] === 'object' && obj[prop] !== null) {
+          return new Proxy(obj[prop], validator)
+        } else {
+          return obj[prop]
+        }
+      },
+      set: function(obj, prop, newVal) {
+        if (prop === 'value') {
+          obj[prop] = newVal
+          if (!self.poll) {
+            self._set(obj)
+          }
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+    this.data = new Proxy(this._state, validator)
+  }
+
+  /**
+   * update event loop used in polling mode
+   */
+  async _update(self) {
+    await self.updateWhenOn()
+    if (self.poll) {
+      setTimeout(self._update, self.pollInterval, self)
+    } else {
+      await self.updateWhenOn()
+    }
+  }
+
+  /**
+   * polling instrument for status
+   */
+  get poll() {
+    return this._autoUpdate
+  }
+
+  /**
+   * set polling status, when true update event loop started
+   * targeted commands are updated in loop instead of direct
+   * request
+   */
+  set poll(newVal) {
+    if (this._autoUpdate === false && newVal === true) {
+      this._autoUpdate = newVal
+      setTimeout(this._update, 0, this)
+    }
+    this._autoUpdate = newVal
   }
 
   /**
@@ -143,7 +197,9 @@ export default class Instrument {
   _send(cmd, delay = 30) {
     return new Promise((resolve, reject) => {
       let x = self => {
-        if (!self.busy) {
+        if (!this._port) {
+          reject(new Error('port not open'))
+        } else if (!self.busy) {
           self.busy = true
           self._port.$buffer = ''
           self._port.write(cmd)
@@ -184,16 +240,20 @@ export default class Instrument {
     return target.value
   }
   /**
-   * change the properties current value
+   * command the instrument to take the properties current value
    * @param {object} target the property to change
    */
-  async set(target) {
+  async _set(target) {
     if (!target.set) {
       throw Error('no setter for property')
     }
 
-    const cmd = target.set.replace('+', Number(target.value))
-    await this._send(cmd, target.delay)
+    try {
+      const cmd = target.set.replace('+', Number(target.value))
+      await this._send(cmd, target.delay)
+    } catch {
+      // port not open, okay with this
+    }
     return target.value
   }
 
@@ -201,29 +261,31 @@ export default class Instrument {
    * update and get the properties while the power is on.
    */
   async updateWhenOn() {
-    await this.set(this.data.set_voltage)
-    await this.set(this.data.set_current)
-    await this.set(this.data.output)
-    await this.set(this.data.ocp)
-    await this.set(this.data.ovp)
-    await this.get(this.data.actual_voltage)
-    await this.get(this.data.actual_current)
-    await this.get(this.data.status)
-    return this.data
+    await this._set(this._state.output)
+    await this._set(this._state.set_voltage)
+    await this._set(this._state.set_current)
+    await this._set(this._state.ocp)
+    await this._set(this._state.ovp)
+    await this.get(this._state.actual_voltage)
+    await this.get(this._state.actual_current)
+    await this.get(this._state.status)
+    return this._state
   }
 
   /**
-   * called to initilse and get the status of the instrument
+   * called to initialize and get the status of the instrument
    */
-  async initState() {
-    this.data.beep.value = 0
-    this.data.ocp.value = 1
-    this.data.ovp.value = 1
-    await this.get(this.data.id)
-    await this.set(this.data.beep)
-    await this.get(this.data.set_voltage)
-    await this.get(this.data.set_current)
+  async init() {
+    this._state.beep.value = 0
+    this._state.ocp.value = 1
+    this._state.ovp.value = 1
+    await this.get(this._state.id)
+    await this._set(this._state.beep)
+    await this.get(this._state.set_voltage)
+    await this.get(this._state.set_current)
+    await this.get(this._state.status)
+    this._state.output.value = this._state.status.value.output
     await this.updateWhenOn()
-    return this.data
+    return this._state
   }
 }

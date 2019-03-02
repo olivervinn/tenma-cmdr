@@ -1,7 +1,7 @@
 {
   "author": "Oliver Vinn <oliver@vinn.co.uk>",
   "description": "TENMA Power Supply Remote",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/main.js",
   "name": "power-supply-cmdr",

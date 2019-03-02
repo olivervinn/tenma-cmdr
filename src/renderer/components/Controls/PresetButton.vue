@@ -1,11 +1,10 @@
 <template>
   <el-button
     size="mini"
-    @click="
-      property.value = value
-      this.$parent.setValue(property)
-    "
-    >{{ label }}</el-button
+    :type="target == preset ? 'primary' : 'default'"
+    :disabled="disabled"
+    @click="$emit('click', $event)"
+    >{{ `${preset}${suffix}` }}</el-button
   >
 </template>
 
@@ -13,17 +12,19 @@
 export default {
   name: 'PresetButton',
   props: {
-    value: {
+    preset: {
       type: Number,
       default: 1
     },
-    property: {
-      type: Object,
-      default: () => {
-        return ''
-      }
+    disabled: {
+      type: Boolean,
+      default: false
     },
-    label: {
+    target: {
+      type: null,
+      default: null
+    },
+    suffix: {
       type: String,
       default: ''
     }
