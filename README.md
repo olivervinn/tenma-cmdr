@@ -1,10 +1,16 @@
-# powersupplycmdr
+# Power Supply Commander
 
-> An electron-vue project
+> A Tenma like serial control power supply app. #electron, #vuejs, #elementui, #serialport
+
+- Voltage and current preset buttons
+- Peak current recorder
+- Live voltage and current readings
+
+![](example.png)
 
 #### Build Setup
 
-``` bash
+```bash
 # install dependencies
 npm install
 
@@ -14,9 +20,6 @@ npm run dev
 # build electron application for production
 npm run build
 
-# run unit & end-to-end tests
-npm test
-
 
 # lint all JS/Vue component files in `src/`
 npm run lint
@@ -24,5 +27,3 @@ npm run lint
 ```
 
 ---
-
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
