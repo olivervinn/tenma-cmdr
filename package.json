@@ -7,10 +7,10 @@
   "name": "power-supply-cmdr",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mubaidr/vue-electron-template.git"
+    "url": "git+https://github.com/ovinn/powersupplycmdr.git"
   },
   "bugs": {
-    "url": "https://git.vinn.co.uk/powersupplycmdr/issues"
+    "url": "https://github.com/ovinn/powersupplycmdr/issues"
   },
   "build": {
     "appId": "co.uk.vinn.powersupplycmdr",
