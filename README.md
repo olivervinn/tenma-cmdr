@@ -2,7 +2,7 @@
 
 A TENMA like serial (USB) control DC power supply app.
 
-![animated showcase](example.gif)
+![animated showcase](example.webp)
 
 ## Features
 

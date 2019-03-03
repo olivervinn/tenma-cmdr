@@ -38,7 +38,8 @@
         </el-col>
         <el-col :span="12">
           <SegmentDisplay
-            :title="$t('Actual Current', { peak: peakCurrent })"
+            :title="$t('Actual Current')"
+            :overlay="peakCurrent"
             :value="d.actual_current.value"
             :major="1"
             :minor="3"
@@ -147,7 +148,7 @@ export default {
   },
   data() {
     return {
-      pollInterval: 200,
+      pollInterval: 100,
       baud: 9600,
       portNames: [],
       portSelected: null,

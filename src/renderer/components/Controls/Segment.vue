@@ -1,6 +1,7 @@
 <template>
   <div class="segment-container">
     <div class="label">{{ title }}</div>
+    <div v-if="overlay" class="overlay">P: {{ overlay.toFixed(minor) }}</div>
     <div class="segment">
       <canvas :id="id" width="150" height="50" :value="value" />
     </div>
@@ -32,6 +33,10 @@ export default {
     value: {
       type: Number,
       default: 0
+    },
+    overlay: {
+      type: Number,
+      default: null
     }
   },
   data: () => ({
@@ -75,5 +80,13 @@ export default {
 }
 .segment {
   margin-bottom: 10px;
+}
+.overlay {
+  position: absolute;
+  font-size: 11.5px;
+  bottom: 4px;
+  right: 8px;
+  /* margin-left: 100px; */
+  word-wrap: none;
 }
 </style>

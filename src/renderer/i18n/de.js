@@ -3,7 +3,7 @@ exports.default = {
   'el.select.noData': 'Keine Daten',
   'Actual Voltage': 'Tatsächliche Spannung (V)',
   'Target Voltage': 'Zielspannung (V)',
-  'Actual Current': 'Tatsächlicher Strom (A) {peak}',
+  'Actual Current': 'Tatsächlicher Strom (A)',
   'Target Current': 'Zielstrom (A)',
   Voltage: 'Stromspannung',
   Current: 'Aktuell',

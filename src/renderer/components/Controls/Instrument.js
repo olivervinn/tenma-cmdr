@@ -73,11 +73,11 @@ export default class Instrument {
     this._busy = false
     this._port = null
     this._state = {
-      id: { value: '------', get: '*IDN?', delay: 100 },
-      set_voltage: { value: 0.0, set: 'VSET1:+', get: 'VSET1?', delay: 60 },
-      set_current: { value: 0.0, set: 'ISET1:+', get: 'ISET1?', delay: 60 },
-      actual_voltage: { value: 0.0, get: 'VOUT1?', delay: 60 },
-      actual_current: { value: 0.0, get: 'IOUT1?', delay: 60 },
+      id: { value: '------', get: '*IDN?', delay: 90 },
+      set_voltage: { value: 0.0, set: 'VSET1:+', get: 'VSET1?', delay: 55 },
+      set_current: { value: 0.0, set: 'ISET1:+', get: 'ISET1?', delay: 55 },
+      actual_voltage: { value: 0.0, get: 'VOUT1?', delay: 55 },
+      actual_current: { value: 0.0, get: 'IOUT1?', delay: 55 },
       ovp: { value: 0, set: 'OVP+', delay: 50 },
       ocp: { value: 0, set: 'OCP+', delay: 50 },
       output: { value: 0, set: 'OUT+', delay: 50 },
@@ -91,7 +91,7 @@ export default class Instrument {
           output: 0
         },
         get: 'STATUS?',
-        delay: 100
+        delay: 55
       }
     }
     // proxy to publicly expose only the value property
@@ -206,8 +206,7 @@ export default class Instrument {
           setTimeout(() => {
             let data = self._port.$buffer
             self.busy = false
-            // eslint-disable-next-line no-console
-            console.log(`${cmd}:${delay} - ${data}`)
+            // console.debug(`${cmd}:${delay} - ${data}`)
             resolve(data)
           }, delay)
         } else {
