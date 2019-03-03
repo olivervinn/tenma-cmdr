@@ -1,7 +1,7 @@
 {
   "author": "Oliver Vinn <oliver@vinn.co.uk>",
   "description": "TENMA Power Supply Remote",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "main": "./dist/main.js",
   "name": "power-supply-cmdr",
@@ -78,6 +78,8 @@
   },
   "dependencies": {
     "@serialport/bindings": "^2.0.7",
+    "chart.js": "^2.7.3",
+    "chartjs-plugin-streaming": "^1.7.1",
     "electron-updater": "^4.0.6",
     "element-ui": "^2.5.4",
     "sass": "^1.17.2",

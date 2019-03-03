@@ -20,6 +20,14 @@
         <div>{{ d.id.value }}</div>
       </el-row>
       <el-row>
+        <Chart
+          :value="d.actual_current.value"
+          :max="5"
+          :enabled="d.output.value === 1 && instr.online()"
+          duration="60000"
+        ></Chart>
+      </el-row>
+      <el-row>
         <el-col :span="12">
           <SegmentDisplay :title="$t('Target Voltage')" :value="d.set_voltage.value" />
         </el-col>
@@ -137,6 +145,7 @@ import SegmentDisplay from './Controls/Segment'
 import PresetButton from './Controls/PresetButton'
 import ComSelector from './Controls/ComSelector'
 import LocaleSelector from './Controls/LocaleSelector'
+import Chart from './Controls/Chart'
 
 export default {
   name: 'Controls',
@@ -144,7 +153,8 @@ export default {
     SegmentDisplay: SegmentDisplay,
     PresetButton: PresetButton,
     ComSelector: ComSelector,
-    LocaleSelector: LocaleSelector
+    LocaleSelector: LocaleSelector,
+    Chart: Chart
   },
   data() {
     return {
@@ -246,7 +256,7 @@ body {
 }
 .power {
   width: 100%;
-  height: 100px;
+  height: 90px;
   font-size: 3.5vh;
 }
 .oxp {
