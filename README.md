@@ -2,11 +2,12 @@
 
 > A Tenma like serial control power supply app. #electron, #vuejs, #elementui, #serialport
 
-- Voltage and current preset buttons
-- Peak current recorder
 - Live voltage and current readings
+- Peak current marker
+- Voltage and current preset buttons
+- Translated (:blush: by Google)
 
-![](example.png)
+![animated showcase](example.gif)
 
 #### Build Setup
 
