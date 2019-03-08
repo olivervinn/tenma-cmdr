@@ -10,6 +10,7 @@ import ElementUI from 'element-ui'
 import enApp from './i18n/en'
 import deApp from './i18n/de'
 import esApp from './i18n/es'
+import frApp from './i18n/fr'
 
 import App from './App'
 import router from './router'
@@ -27,6 +28,9 @@ const messages = {
   },
   es: {
     ...esApp
+  },
+  fr: {
+    ...frApp
   },
   de: {
     ...deApp

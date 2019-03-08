@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container :class="darkmode ? 'darktheme' : ''">
     <el-header>
       <el-row>
         <el-col>
@@ -10,35 +10,35 @@
             @change="connect"
           />
         </el-col>
-        <el-col>
-          <LocaleSelector></LocaleSelector>
+        <el-col :span="8">
+          <WindowMode v-model="darkmode"></WindowMode>
         </el-col>
       </el-row>
     </el-header>
     <el-main>
       <el-row>
-        <div>{{ d.id.value }}</div>
+        <div class="identity">{{ d.id.value }}</div>
       </el-row>
       <el-row>
         <Chart
           :value="d.actual_current.value"
           :max="5"
-          :enabled="d.output.value === 1 && instr.online()"
-          duration="60000"
+          :enabled="d.output.value && instr.online()"
+          :duration="30000"
         ></Chart>
       </el-row>
       <el-row>
         <el-col :span="12">
-          <SegmentDisplay :title="$t('Target Voltage')" :value="d.set_voltage.value" />
+          <SegmentDisplay :title="$t('label.targetVoltage')" :value="d.set_voltage.value" />
         </el-col>
         <el-col :span="12">
-          <SegmentDisplay :title="$t('Actual Voltage')" :value="d.actual_voltage.value" />
+          <SegmentDisplay :title="$t('label.actualVoltage')" :value="d.actual_voltage.value" />
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="12">
           <SegmentDisplay
-            :title="$t('Target Current')"
+            :title="$t('label.targetCurrent')"
             :value="d.set_current.value"
             :major="1"
             :minor="3"
@@ -46,7 +46,7 @@
         </el-col>
         <el-col :span="12">
           <SegmentDisplay
-            :title="$t('Actual Current')"
+            :title="$t('label.actualCurrent')"
             :overlay="peakCurrent"
             :value="d.actual_current.value"
             :major="1"
@@ -56,7 +56,7 @@
       </el-row>
       <el-row>
         <el-col :span="12" class="nifc">
-          <label for="voltage">{{ $t('Voltage') }}</label>
+          <label for="voltage">{{ $t('label.voltage') }}</label>
           <el-input-number
             v-model.number="d.set_voltage.value"
             :disabled="!instr.online()"
@@ -79,7 +79,7 @@
           </div>
         </el-col>
         <el-col :span="12" class="nifcr">
-          <label for="current">{{ $t('Current') }}</label>
+          <label for="current">{{ $t('label.current') }}</label>
           <el-input-number
             v-model.number="d.set_current.value"
             :disabled="!instr.online()"
@@ -104,34 +104,41 @@
       </el-row>
       <el-row>
         <el-col :span="12" class="nifc">
-          <el-button
-            class="oxp"
-            :type="d.ovp.value === 1 ? 'warning' : 'info'"
+          <el-switch
+            v-model="d.ovp.value"
             :disabled="!instr.online()"
-            @click="toggle(d.ovp)"
-            >{{ $t('OVP') }}</el-button
-          >
+            :active-text="`${$t('label.on')}`"
+            :inactive-text="`${$t('label.ovp')}`"
+            active-color="#67c23a"
+            :width="60"
+          ></el-switch>
         </el-col>
         <el-col :span="12" class="nifcr">
-          <el-button
-            class="oxp"
-            :type="d.ocp.value === 1 ? 'warning' : 'info'"
+          <el-switch
+            v-model="d.ocp.value"
             :disabled="!instr.online()"
-            @click="toggle(d.ocp)"
-            >{{ $t('OCP') }}</el-button
-          >
+            :active-text="`${$t('label.on')}`"
+            :inactive-text="`${$t('label.ocp')}`"
+            active-color="#67c23a"
+            :width="60"
+          ></el-switch>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
           <el-button
             class="power"
-            :type="d.output.value === 1 ? 'danger' : 'primary'"
+            :type="d.output.value ? 'danger' : 'primary'"
             :disabled="!instr.online()"
-            @click="toggle(d.output)"
+            @click="d.output.value = !d.output.value"
           >
-            {{ $t('POWER') }}
-            {{ d.status.value.output === 1 ? $t('ON') : $t('OFF') }}
+            <el-badge
+              id="autoOffIndicator"
+              :value="`${$t('label.autoOff')}`"
+              type="danger"
+              :hidden="hideAutoOffInidcator"
+            ></el-badge>
+            {{ $t('label.power') }} {{ d.status.value.output ? $t('label.on') : $t('label.off') }}
           </el-button>
         </el-col>
       </el-row>
@@ -144,7 +151,7 @@ import Instrument from './Controls/Instrument.js'
 import SegmentDisplay from './Controls/Segment'
 import PresetButton from './Controls/PresetButton'
 import ComSelector from './Controls/ComSelector'
-import LocaleSelector from './Controls/LocaleSelector'
+import WindowMode from './Controls/WindowMode'
 import Chart from './Controls/Chart'
 
 export default {
@@ -153,28 +160,38 @@ export default {
     SegmentDisplay: SegmentDisplay,
     PresetButton: PresetButton,
     ComSelector: ComSelector,
-    LocaleSelector: LocaleSelector,
+    WindowMode: WindowMode,
     Chart: Chart
   },
   data() {
     return {
+      darkmode: false,
       pollInterval: 100,
       baud: 9600,
       portNames: [],
       portSelected: null,
       instr: null,
       d: null,
-      peakCurrent: 0
+      peakCurrent: 0,
+      hideAutoOffInidcator: true
     }
   },
   watch: {
-    'd.output.value': function(newVal, oldVal) {
-      // off -> on
-      if (newVal > oldVal) {
-        this.peakCurrent = 0
+    'd.status.value.output': function(newVal, oldVal) {
+      // update desired state to match actual
+      if (this.d.output.value === true && this.d.status.value.output === false) {
+        this.hideAutoOffInidcator = false
       }
-      // poll if output on
-      this.instr.poll = newVal === 1
+      this.d.output.value = newVal
+    },
+    'd.output.value': function(newVal, oldVal) {
+      // reset peak when off -> on
+      if (newVal && !oldVal) {
+        this.peakCurrent = 0
+        this.hideAutoOffInidcator = true
+      }
+      // poll instrument status if output on
+      this.instr.poll = newVal === true
     },
     'd.actual_current.value': function(newVal, oldVal) {
       this.peakCurrent = Math.max(this.peakCurrent, this.d.actual_current.value)
@@ -213,9 +230,6 @@ export default {
         this.portNames = await Instrument.getAvailablePorts()
         setTimeout(this.checkForPorts, 1500)
       }
-    },
-    async toggle(obj) {
-      obj.value = obj.value === 1 ? 0 : 1
     }
   }
 }
@@ -223,7 +237,6 @@ export default {
 
 <style>
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -231,12 +244,13 @@ export default {
   /* border: 1px solid red; */
 }
 body {
+  overflow-x: hidden;
+  overflow-y: hidden;
   font-family: 'Source Sans Pro', sans-serif;
-  background-size: 200%;
+  /* background-size: 200%; */
 }
 .el-container {
   padding: 10px;
-  overflow: hidden;
 }
 .el-header {
   padding: 0px;
@@ -255,15 +269,30 @@ body {
   padding: 4px;
 }
 .power {
+  margin-top: 5px;
   width: 100%;
   height: 90px;
   font-size: 3.5vh;
+  font-weight: bold;
 }
-.oxp {
+#autoOffIndicator {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  /* bottom: 20px; */
+}
+.el-switch {
+  margin-top: 10px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  padding: 20px;
   width: 100%;
-  height: 50px;
-  margin: 4px 0px;
-  margin-right: 5px;
+  border: 1px solid rgb(221, 221, 221);
+  background: rgba(240, 240, 240, 0.418);
+}
+label {
+  font-size: 10px;
+  user-select: none;
 }
 .button-group {
   display: inline-flex;
@@ -282,5 +311,8 @@ body {
   padding-left: 3px;
   padding-top: 5px;
   font-size: 2vh;
+}
+.darktheme {
+  background: #afafaf;
 }
 </style>

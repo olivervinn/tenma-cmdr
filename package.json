@@ -1,7 +1,7 @@
 {
   "author": "Oliver Vinn <oliver@vinn.co.uk>",
-  "description": "TENMA Power Supply Remote",
-  "version": "0.3.0",
+  "description": "A power supply commander for TENMA like supplies.",
+  "version": "0.4.0",
   "license": "MIT",
   "main": "./dist/main.js",
   "name": "power-supply-cmdr",
@@ -67,9 +67,9 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
     },
-    "productName": "PowerSupplyCmdr",
+    "productName": "Power Supply Cmdr",
     "win": {
-      "icon": "_icons/icon.ico",
+      "icon": "_icons/icon.png",
       "target": [
         "nsis",
         "portable"

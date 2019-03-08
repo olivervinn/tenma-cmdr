@@ -2,7 +2,7 @@
   <div>
     <el-dropdown
       split-button
-      :type="isconnected ? 'success' : 'info'"
+      :type="isconnected ? 'success' : 'primary'"
       @click="$emit('click', activeport)"
       @command="
         activeport = $event
@@ -10,13 +10,13 @@
       "
     >
       <div>
-        {{ activeport ? activeport : $t('Select') }} |
-        {{ isconnected ? $t('online') : $t('offline') }}
+        {{ activeport ? activeport : $t('label.select') }} |
+        {{ isconnected ? $t('label.online') : $t('label.offline') }}
       </div>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item v-for="item in portlist" :key="item.name" :command="item.name">
-          {{ `${item.name} (${item.description} - ${item.id})` }}
-        </el-dropdown-item>
+        <el-dropdown-item v-for="item in portlist" :key="item.name" :command="item.name">{{
+          `${item.name} (${item.description} - ${item.id})`
+        }}</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>

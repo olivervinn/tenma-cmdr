@@ -58,11 +58,11 @@ export default class Instrument {
       return oldValue
     }
     return {
-      cc: Number(normalizedStatus[0]),
-      output: Number(normalizedStatus[1]),
-      cv: Number(normalizedStatus[2]),
-      beep: Number(normalizedStatus[4]),
-      lock: Number(normalizedStatus[5])
+      cc: normalizedStatus[0] === '1',
+      output: normalizedStatus[1] === '1',
+      cv: normalizedStatus[2] === '1',
+      beep: normalizedStatus[4] === '1',
+      lock: normalizedStatus[5] === '1'
     }
   }
 
@@ -78,17 +78,17 @@ export default class Instrument {
       set_current: { value: 0.0, set: 'ISET1:+', get: 'ISET1?', delay: 55 },
       actual_voltage: { value: 0.0, get: 'VOUT1?', delay: 55 },
       actual_current: { value: 0.0, get: 'IOUT1?', delay: 55 },
-      ovp: { value: 0, set: 'OVP+', delay: 50 },
-      ocp: { value: 0, set: 'OCP+', delay: 50 },
-      output: { value: 0, set: 'OUT+', delay: 50 },
-      beep: { value: 0, set: 'BEEP+', delay: 50 },
+      ovp: { value: false, set: 'OVP+', delay: 50, type: Boolean },
+      ocp: { value: false, set: 'OCP+', delay: 50, type: Boolean },
+      output: { value: false, set: 'OUT+', delay: 50, type: Boolean },
+      beep: { value: 0, set: 'BEEP+', delay: 50, type: Boolean },
       status: {
         value: {
-          cc: 0,
-          cv: 0,
-          beep: 0,
-          lock: 0,
-          output: 0
+          cc: false,
+          cv: false,
+          beep: false,
+          lock: false,
+          output: false
         },
         get: 'STATUS?',
         delay: 55
@@ -234,7 +234,11 @@ export default class Instrument {
     } else if (cmd === 'STATUS?') {
       target.value = Instrument.decodeStatus(result, target.value)
     } else {
-      target.value = Instrument.decodeValue(result, target.value)
+      if (target.type && target.type === Boolean) {
+        target.value = Boolean(Instrument.decodeValue(result, target.value))
+      } else {
+        target.value = Instrument.decodeValue(result, target.value)
+      }
     }
     return target.value
   }
@@ -275,15 +279,16 @@ export default class Instrument {
    * called to initialize and get the status of the instrument
    */
   async init() {
-    this._state.beep.value = 0
-    this._state.ocp.value = 1
-    this._state.ovp.value = 1
-    await this.get(this._state.id)
-    await this._set(this._state.beep)
-    await this.get(this._state.set_voltage)
-    await this.get(this._state.set_current)
-    await this.get(this._state.status)
-    this._state.output.value = this._state.status.value.output
+    let prom = []
+    Object.keys(this._state).forEach(element => {
+      if (this._state[element].hasOwnProperty('get')) {
+        prom.push(this.get(this._state[element]))
+      }
+    })
+    await Promise.all(prom)
+    this._state.beep.value = false
+    this._state.ocp.value = true
+    this._state.ovp.value = true
     await this.updateWhenOn()
     return this._state
   }

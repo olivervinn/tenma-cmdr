@@ -77,6 +77,7 @@ export default {
 .label {
   margin-bottom: 10px;
   font-size: 10px;
+  user-select: none;
 }
 .segment {
   margin-bottom: 10px;

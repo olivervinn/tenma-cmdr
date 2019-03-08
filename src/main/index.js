@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 
 const pkg = require('../../package.json')
@@ -30,7 +30,7 @@ async function installDevTools() {
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 465,
-    height: 815,
+    height: 820,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
@@ -49,7 +49,9 @@ function createWindow() {
   }
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.setTitle(productName)
+    let name = require('../../package.json').build.productName
+    let version = require('../../package.json').version
+    mainWindow.setTitle(`${name} - v${version}`)
     mainWindow.show()
     mainWindow.focus()
 
@@ -62,6 +64,10 @@ function createWindow() {
     mainWindow = null
   })
 }
+
+ipcMain.on('windowMode', (event, arg) => {
+  mainWindow.setAlwaysOnTop(arg, 'floating', 1)
+})
 
 app.on('activate', () => {
   if (mainWindow === null) {

@@ -1,5 +1,8 @@
 <template>
   <div class="myChart-container">
+    <div class="overlay">
+      <div>{{ duration / 1000 }}s</div>
+    </div>
     <canvas id="myChart"></canvas>
   </div>
 </template>
@@ -14,9 +17,9 @@ export default {
       default: 30,
       type: Number
     },
-    duartion: {
+    duration: {
       type: Number,
-      default: 10000
+      default: 30 * 1000
     },
     value: {
       type: Number,
@@ -65,7 +68,7 @@ export default {
                 type: 'realtime',
                 realtime: {
                   duration: this.duration,
-                  delay: 1000, // delay of 1000 ms, so upcoming values are known before plotting a line
+                  delay: 1000,
                   pause: true,
                   ttl: undefined
                 },
@@ -94,7 +97,7 @@ export default {
           },
           plugins: {
             streaming: {
-              frameRate: 10
+              frameRate: 30
             }
           }
         }
@@ -102,6 +105,9 @@ export default {
     }
   },
   watch: {
+    duration: function(newVal, oldVal) {
+      this.chart.config.xAxes.realtime.duration = newVal
+    },
     value: function(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.onRefresh()
@@ -134,11 +140,24 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .myChart-container {
   border: 1px solid rgb(248, 209, 209);
   border-radius: 5px;
   padding: 5px;
   margin: 2px;
+}
+.overlay {
+  position: absolute;
+  font-size: 10px;
+  top: 8px;
+  right: 8px;
+  background: rgb(221, 221, 221);
+  padding: 3px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 4px;
+  /* margin-left: 100px; */
+  word-wrap: none;
 }
 </style>
