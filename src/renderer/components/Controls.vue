@@ -1,5 +1,5 @@
 <template>
-  <el-container :class="darkmode ? 'darktheme' : ''">
+  <el-container :class="darkMode ? 'darktheme' : ''">
     <el-header>
       <el-row>
         <el-col>
@@ -11,7 +11,7 @@
           />
         </el-col>
         <el-col :span="8">
-          <WindowMode v-model="darkmode"></WindowMode>
+          <WindowMode v-model="darkMode"></WindowMode>
         </el-col>
       </el-row>
     </el-header>
@@ -165,7 +165,7 @@ export default {
   },
   data() {
     return {
-      darkmode: false,
+      darkMode: false,
       pollInterval: 100,
       baud: 9600,
       portNames: [],
@@ -178,11 +178,13 @@ export default {
   },
   watch: {
     'd.status.value.output': function(newVal, oldVal) {
-      // update desired state to match actual
-      if (this.d.output.value === true && this.d.status.value.output === false) {
+      // show status moved to off but dont reset demanded value
+      if (this.d.output.value && !this.d.status.value.output) {
         this.hideAutoOffInidcator = false
+      } else if (this.d.status.value.output) {
+        this.hideAutoOffInidcator = true
       }
-      this.d.output.value = newVal
+      // this.d.output.value = newVal
     },
     'd.output.value': function(newVal, oldVal) {
       // reset peak when off -> on

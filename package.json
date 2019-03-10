@@ -1,7 +1,7 @@
 {
   "author": "Oliver Vinn <oliver@vinn.co.uk>",
   "description": "A power supply commander for TENMA like supplies.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "main": "./dist/main.js",
   "name": "power-supply-cmdr",

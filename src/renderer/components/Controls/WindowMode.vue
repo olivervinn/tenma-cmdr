@@ -35,6 +35,7 @@ export default {
   components: {
     LocaleSelector: LocaleSelector
   },
+  // eslint-disable-next-line vue/require-prop-types
   props: ['value'],
   data() {
     return {
