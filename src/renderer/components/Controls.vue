@@ -73,7 +73,7 @@
               :preset="preset"
               :target="d.set_voltage.value"
               :disabled="!instr.online()"
-              :suffix="preset >= 5 && preset <= 12 ? 'A' : ''"
+              :suffix="preset >= 5 && preset <= 12 ? 'V' : ''"
               @click="d.set_voltage.value = preset"
             />
           </div>

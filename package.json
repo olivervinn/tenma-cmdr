@@ -1,7 +1,7 @@
 {
   "author": "Oliver Vinn <oliver@vinn.co.uk>",
   "description": "A power supply commander for TENMA like supplies.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "license": "MIT",
   "main": "./dist/main.js",
   "name": "power-supply-cmdr",
@@ -158,7 +158,8 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "webpack --hide-modules --config ./_scripts/webpack.main.config.js",
     "pack:renderer": "webpack --hide-modules --config ./_scripts/webpack.renderer.config.js",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "clean": "cross-env rm -rf dist/ build/"
   },
   "babel": {
     "plugins": [
