@@ -10,7 +10,7 @@ const isDev = process.env.NODE_ENV === 'development'
 let mainWindow
 
 if (isDev) {
-  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = '1'
   // eslint-disable-next-line
   require('electron-debug')()
 }
@@ -31,6 +31,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 465,
     height: 820,
+    autoHideMenuBar: true,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
@@ -49,8 +50,8 @@ function createWindow() {
   }
 
   mainWindow.on('ready-to-show', () => {
-    let name = require('../../package.json').build.productName
-    let version = require('../../package.json').version
+    const name = require('../../package.json').build.productName
+    const version = require('../../package.json').version
     mainWindow.setTitle(`${name} - v${version}`)
     mainWindow.show()
     mainWindow.focus()

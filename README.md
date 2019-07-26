@@ -34,9 +34,12 @@ Source [Farnell Element 14 (UK) Protocol V2.0 Datasheet](https://www.element14.c
 
 ## Build Setup
 
+Build from source flag is required due to node serial bindings no longer
+maintained binary releases. Ensure Python 2.7 is in the path before Python 3.x!
+
 ```bash
 # install dependencies
-npm install
+npm install --build-from-source
 
 # serve with hot reload at localhost:9080
 npm run dev

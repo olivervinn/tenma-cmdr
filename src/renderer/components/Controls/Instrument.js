@@ -7,18 +7,14 @@ export default class Instrument {
    */
   static async getAvailablePorts() {
     const portDescriptors = []
-    try {
-      let ports = await SerialPort.list()
-      ports.forEach(port => {
-        portDescriptors.push({
-          name: port.comName.toString(),
-          description: port.manufacturer,
-          id: port.productId
-        })
+    const ports = await SerialPort.list()
+    ports.forEach(port => {
+      portDescriptors.push({
+        name: port.comName.toString(),
+        description: port.manufacturer,
+        id: port.productId
       })
-    } catch (e) {
-      throw e
-    }
+    })
     return portDescriptors
   }
 
@@ -40,7 +36,7 @@ export default class Instrument {
    */
   static decodeValue(rawString, oldValue) {
     if (rawString === '') {
-      rawString = 0
+      rawString = '0'
     }
     const tmpFloat = parseFloat(rawString)
     return !Number.isNaN(tmpFloat) ? tmpFloat : rawString
@@ -67,7 +63,7 @@ export default class Instrument {
   }
 
   constructor() {
-    let self = this
+    const self = this
     this.pollInterval = 200
     this._autoUpdate = false
     this._busy = false
@@ -81,7 +77,7 @@ export default class Instrument {
       ovp: { value: false, set: 'OVP+', delay: 50, type: Boolean },
       ocp: { value: false, set: 'OCP+', delay: 50, type: Boolean },
       output: { value: false, set: 'OUT+', delay: 50, type: Boolean },
-      beep: { value: 0, set: 'BEEP+', delay: 50, type: Boolean },
+      beep: { value: false, set: 'BEEP+', delay: 50, type: Boolean },
       status: {
         value: {
           cc: false,
@@ -95,7 +91,7 @@ export default class Instrument {
       }
     }
     // proxy to publicly expose only the value property
-    let validator = {
+    const validator = {
       get: function(obj, prop) {
         if (prop !== '__ob__' && typeof obj[prop] === 'object' && obj[prop] !== null) {
           return new Proxy(obj[prop], validator)
@@ -154,7 +150,7 @@ export default class Instrument {
    * determine if connection is available
    */
   online() {
-    let isOnline = this._port !== null && this._port.isOpen
+    const isOnline = this._port !== null && this._port.isOpen
     return isOnline
   }
 
@@ -168,8 +164,7 @@ export default class Instrument {
       baudRate: baud,
       dataBits: 8,
       stopBits: 1,
-      parity: 'none',
-      parser: SerialPort.parsers.raw
+      parity: 'none'
     })
 
     this._port.$buffer = ''
@@ -196,7 +191,7 @@ export default class Instrument {
    */
   _send(cmd, delay = 30) {
     return new Promise((resolve, reject) => {
-      let x = self => {
+      const x = self => {
         if (!this._port) {
           reject(new Error('port not open'))
         } else if (!self.busy) {
@@ -204,7 +199,7 @@ export default class Instrument {
           self._port.$buffer = ''
           self._port.write(cmd)
           setTimeout(() => {
-            let data = self._port.$buffer
+            const data = self._port.$buffer
             self.busy = false
             // console.debug(`${cmd}:${delay} - ${data}`)
             resolve(data)
@@ -227,7 +222,7 @@ export default class Instrument {
     }
 
     const cmd = target.get
-    let result = await this._send(cmd, target.delay)
+    const result = await this._send(cmd, target.delay)
 
     if (!cmd.endsWith('?')) {
       target.value = Instrument.decodeCmd(cmd)
@@ -242,6 +237,7 @@ export default class Instrument {
     }
     return target.value
   }
+
   /**
    * command the instrument to take the properties current value
    * @param {object} target the property to change
@@ -279,9 +275,9 @@ export default class Instrument {
    * called to initialize and get the status of the instrument
    */
   async init() {
-    let prom = []
+    const prom = []
     Object.keys(this._state).forEach(element => {
-      if (this._state[element].hasOwnProperty('get')) {
+      if (Object.prototype.hasOwnProperty.call(this._state[element], 'get')) {
         prom.push(this.get(this._state[element]))
       }
     })

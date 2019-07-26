@@ -31,7 +31,7 @@ export default {
     }
   },
   data() {
-    let chartColors = {
+    const chartColors = {
       red: 'rgb(255, 99, 132)',
       redf: 'rgba(255, 99, 132, 0.3)',
       orange: 'rgb(255, 159, 64)',
@@ -124,7 +124,7 @@ export default {
     }
   },
   mounted() {
-    let element = this.$el.getElementsByTagName('canvas')[0]
+    const element = this.$el.getElementsByTagName('canvas')[0]
     var ctx = element.getContext('2d')
     this.chart = new Chart(ctx, this.config)
   },

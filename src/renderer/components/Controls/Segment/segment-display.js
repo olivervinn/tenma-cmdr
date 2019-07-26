@@ -24,10 +24,15 @@
 
 export class SegmentDisplay {
   static SevenSegment = 7
+
   static FourteenSegment = 14
+
   static SixteenSegment = 16
+
   static SymmetricCorner = 0
+
   static SquaredCorner = 1
+
   static RoundedCorner = 2
 
   constructor(canvasIdOrElement, major, minor) {
@@ -91,7 +96,7 @@ export class SegmentDisplay {
       display = this.canvasIdOrElement
     }
     if (display) {
-      let context = display.getContext('2d')
+      const context = display.getContext('2d')
       if (context) {
         // clear canvas
         context.clearRect(0, 0, display.width, display.height)
