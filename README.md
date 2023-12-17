@@ -1,4 +1,4 @@
-# Power Supply Commander
+# Tenma Power Supply Commander
 
 A TENMA like serial (USB) control DC power supply app.
 
